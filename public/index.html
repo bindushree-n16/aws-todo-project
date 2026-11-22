@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My AWS To-Do App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            max-width: 500px;
+            margin: auto;
+            border-radius: 12px;
+        }
+
+        input {
+            padding: 12px;
+            width: 60%;
+        }
+
+        button {
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        li {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>My AWS To-Do Application - V1</h1>
+
+    <input type="text" id="task" placeholder="Enter your task">
+
+    <button onclick="addTask()">Add Task</button>
+
+    <h2>My Tasks</h2>
+
+    <ul id="tasks"></ul>
+
+</div>
+
+<script>
+
+async function loadTasks() {
+    try {
+        const response = await fetch('/tasks');
+        const tasks = await response.json();
+
+        const list = document.getElementById('tasks');
+        list.innerHTML = '';
+
+        tasks.forEach(task => {
+            const li = document.createElement('li');
+            li.textContent = task.title + ' - ' + task.status;
+            list.appendChild(li);
+        });
+    } catch (error) {
+        console.error('Unable to load tasks:', error);
+    }
+}
+
+async function addTask() {
+    const input = document.getElementById('task');
+    const title = input.value.trim();
+
+    if (!title) {
+        alert('Please enter a task');
+        return;
+    }
+
+    try {
+        const response = await fetch('/tasks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title })
+        });
+
+        if (response.ok) {
+            input.value = '';
+            loadTasks();
+        } else {
+            alert('Unable to add task');
+        }
+    } catch (error) {
+        alert('Server connection failed');
+    }
+}
+
+loadTasks();
+
+</script>
+
+</body>
+</html>
